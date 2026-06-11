@@ -163,6 +163,9 @@ include = [
     "external/duckdb/tools/utils/**",
     "external/duckdb/.github/config/out_of_tree_extensions.cmake",
     "external/duckdb/.github/config/in_tree_extensions.cmake",
+    "external/duckdb/.github/config/extensions/**",
+    "external/duckdb/.github/patches/**",
+    "external/duckdb/scripts/apply_extension_patches.py",
 ]
 exclude = [
     "/*",
@@ -457,16 +460,14 @@ indent-style = "space"
 ######################################################################################################
 [tool.cibuildwheel]
 build-frontend = "build[uv]"
+# Scope: CPython 3.10, x86_64 manylinux only.
+build = "cp310-manylinux_x86_64"
 manylinux-x86_64-image = "manylinux_2_28"
-manylinux-pypy_x86_64-image = "manylinux_2_28"
-manylinux-aarch64-image = "manylinux_2_28"
-manylinux-pypy_aarch64-image = "manylinux_2_28"
 
 [tool.cibuildwheel.linux]
-before-build = ["yum install -y ccache"]
-
-[tool.cibuildwheel.macos]
-before-build = ["brew install ccache"]
-
-[tool.cibuildwheel.windows]
-before-build = ["choco install ccache"]
+# openssl-devel provides system OpenSSL for httpfs; auditwheel vendors the
+# resulting libssl/libcrypto into the wheel. find_package(OpenSSL) locates it
+# under /usr automatically on manylinux_2_28 (AlmaLinux 8).
+before-all = ["yum install -y ccache openssl-devel"]
+# Stage the httpfs patch tooling at the repo root before each configure.
+before-build = ["python {project}/scripts/_stage_oot_extension_patches.py"]
