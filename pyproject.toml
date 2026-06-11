@@ -468,6 +468,6 @@ manylinux-x86_64-image = "manylinux_2_28"
 # openssl-devel provides system OpenSSL for httpfs; auditwheel vendors the
 # resulting libssl/libcrypto into the wheel. find_package(OpenSSL) locates it
 # under /usr automatically on manylinux_2_28 (AlmaLinux 8).
-before-all = ["yum install -y ccache openssl-devel"]
+before-all = ["yum install -y ccache openssl-devel libcurl-devel"]
 # Stage the httpfs patch tooling at the repo root before each configure.
 before-build = ["python {project}/scripts/_stage_oot_extension_patches.py"]
